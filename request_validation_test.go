@@ -41,7 +41,7 @@ aHxzu2smLRzQSttTXfuemCijTigg==`
 }
 func Test_verifyCertURL(t *testing.T) {
 	//https://developer.amazon.com/en-US/docs/alexa/custom-skills/host-a-custom-skill-as-a-web-service.html#check-request-signature
-	primeTests := []struct {
+	myTests := []struct {
 		name     string
 		UrlName  string
 		expected bool
@@ -55,7 +55,7 @@ func Test_verifyCertURL(t *testing.T) {
 		{"invalid", "https://s3.amazonaws.com/EcHo.aPi/echo-api-cert.pem", false, "Cannot pass url With Invalid Path"},
 		{"invalid", "https://s3.amazonaws.com:563/echo.api/echo-api-cert.pem", false, "Cannot pass url With Invalid Port"},
 	}
-	for _, e := range primeTests {
+	for _, e := range myTests {
 		result := verifyCertURL(e.UrlName)
 		if e.expected && !result {
 			t.Errorf("%s: expected valid but got invalid", e.name)
