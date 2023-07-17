@@ -20,7 +20,7 @@ func Test_EscapeSSMLText(t *testing.T) {
 	text4Convert := "&lt;"
 	text5Convert := "&gt;"
 
-	primeTests := []struct {
+	myTests := []struct {
 		status   string
 		text     string
 		getText  string
@@ -41,7 +41,7 @@ func Test_EscapeSSMLText(t *testing.T) {
 		{"invalid", text4, ">", "-", false, "expected :" + text5Convert},
 	}
 
-	for _, e := range primeTests {
+	for _, e := range myTests {
 		result := EscapeSSMLText(e.text)
 		contains := strings.Contains(result, e.convert)
 		if e.expected && !contains {
