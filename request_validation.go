@@ -35,11 +35,12 @@ func validateAlexaRequest(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	// Check the certificate date
+	//Check the certificate date
 	if time.Now().Unix() < cert.NotBefore.Unix() || time.Now().Unix() > cert.NotAfter.Unix() {
 		cachedCert = nil
 		// try again
-		return validateAlexaRequest(w, r)
+		//return validateAlexaRequest(w, r)  //TODO not compatible with test
+		return fmt.Errorf("Invalid Amazon certificate date")
 	}
 
 	// Verify the key
@@ -53,7 +54,7 @@ func validateAlexaRequest(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	r.Body = ioutil.NopCloser(&bodyBuf)
+	r.Body = io.NopCloser(&bodyBuf)
 
 	err = rsa.VerifyPKCS1v15(publicKey.(*rsa.PublicKey), crypto.SHA1, hash.Sum(nil), encryptedSig)
 	if err != nil {
