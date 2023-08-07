@@ -104,6 +104,23 @@ func (build *Builder) RepromptSSML(text string) *Builder {
 	return build
 }
 
+// AddAudioPlayer adds an AudioPlayer directive to the Response.
+func (build *Builder) AddAudioPlayer(streamToken, url string, offsetInMilliseconds uint64) *Builder {
+	directiveAudioPlayerPlay := alexaapi.DirectiveAudioPlayerPlay{
+		Type:         alexaapi.DirectiveTypeUnspecified,
+		PlayBehavior: alexaapi.AudioPlayerPlayBehaviorUnspecified,
+		AudioItem: &alexaapi.AudioPlayerAudioItem{
+			Stream: alexaapi.AudioItemStream{
+				Token:                streamToken,
+				Url:                  url,
+				OffsetInMilliseconds: offsetInMilliseconds,
+			},
+		},
+	}
+	build.Response.Directives = append(build.Response.Directives, directiveAudioPlayerPlay)
+	return build
+}
+
 // EndSession is a convenience method for setting the flag in the response that will
 // indicate if the session between the end user's device and the skill should be closed.
 func (build *Builder) EndSession(flag bool) *Builder {

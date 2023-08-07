@@ -1,3 +1,7 @@
+hello, I bought amazon echo show for my son's room, I used your
+library to make skills for it and I made it simpler with more examples and tests and postman and docker, I will add the remaining missing tests,
+I learned a lot of good things from this project, I would like to help you too and thank you for the project.
+
 ## Overview
 Develop a very simple and very fast alexa application with this go application
 Go library to easily handle Alexa custom skill requests, conforming to the official Alexa Skill Kit JSON reference.
@@ -51,7 +55,7 @@ func (h *LaunchNew) Handle(ctx context.Context, skill *goalexa.Skill, requestRoo
 	fmt.Println(requestType)
 
 	var response alexaapi.ResponseRoot
-	var builder Builder
+	var builder alexaapi.Builder
 
 	if requestType == "LaunchRequest" {
 		text := "Hi! Welcome to Diet Application"

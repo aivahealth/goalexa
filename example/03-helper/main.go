@@ -33,7 +33,7 @@ func (h *LaunchNew) Handle(ctx context.Context, skill *goalexa.Skill, requestRoo
 	fmt.Println(requestType)
 
 	var response alexaapi.ResponseRoot
-	var builder Builder
+	var builder alexaapi.Builder
 
 	if requestType == "LaunchRequest" {
 		text := "Hi! Welcome to Diet Application"

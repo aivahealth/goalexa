@@ -36,7 +36,7 @@ type Skill struct {
 }
 
 // applicationId may be blank
-// if blank, no applicationId validation will be performed
+// TODO: if blank, no applicationId validation will be performed
 func NewSkill(applicationId string) *Skill {
 	return &Skill{
 		applicationId: applicationId,
