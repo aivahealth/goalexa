@@ -35,8 +35,7 @@ aHxzu2smLRzQSttTXfuemCijTigg==`
 		req.Header.Add("signature", validSignature)
 		w := httptest.NewRecorder()
 		errValidate := validateAlexaRequest(w, req)
-		//// iteration for solition look my testSuite 19
-		//https://github.com/golang/go/issues/12262  https://www.google.com/search?q=golang+httptest+request+close+time&client=firefox-b-1-d&ei=QF3PZObGN-PAkPIP77u-sAQ&oq=golang+httptest+request+close&gs_lp=Egxnd3Mtd2l6LXNlcnAiHWdvbGFuZyBodHRwdGVzdCByZXF1ZXN0IGNsb3NlKgIIADIFECEYoAEyBRAhGKABMgUQIRigAUjJUFDgQVjXRnABeAGQAQCYAXGgAd8DqgEDNC4xuAEDyAEA-AEBwgIKEAAYRxjWBBiwA8ICBRAhGKsCwgIIECEYFhgeGB3iAwQYACBBiAYBkAYI&sclient=gws-wiz-serp
+
 		if errValidate != nil {
 			t.Errorf("expected error to be nil got %v", errValidate)
 		}
