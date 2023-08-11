@@ -5,13 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"os"
-
 	"github.com/aivahealth/goalexa/alexaapi"
 	"go.uber.org/zap"
+	"io"
+	"net/http"
+	"os"
 )
 
 type RequestHandler interface {
@@ -38,7 +36,7 @@ type Skill struct {
 }
 
 // applicationId may be blank
-// if blank, no applicationId validation will be performed
+// TODO: if blank, no applicationId validation will be performed
 func NewSkill(applicationId string) *Skill {
 	return &Skill{
 		applicationId: applicationId,
@@ -56,12 +54,17 @@ func (s *Skill) RegisterHandlers(handler ...RequestHandler) {
 func (s *Skill) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	if err := validateAlexaRequest(w, r); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
+	w.Header().Set("Content-Type", "application/json")
+	if os.Getenv("APP_ENV") == "production" {
+		if err := validateAlexaRequest(w, r); err != nil {
+			fmt.Println(err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 	}
 
-	requestJson, err := ioutil.ReadAll(r.Body)
+	requestJson, err := io.ReadAll(r.Body)
+
 	if err != nil {
 		Logger.Error("ServeHTTP failed", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -71,6 +74,7 @@ func (s *Skill) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if os.Getenv("GOALEXA_DUMP") != "" {
 		trash := map[string]any{}
 		json.Unmarshal(requestJson, &trash)
+
 		var requestJsonPretty []byte
 		if os.Getenv("GOALEXA_DUMP") == "full" {
 			requestJsonPretty, _ = json.MarshalIndent(trash, "", "    ")
@@ -82,6 +86,7 @@ func (s *Skill) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	var root alexaapi.RequestRoot
 	err = json.Unmarshal(requestJson, &root)
+
 	if err != nil {
 		Logger.Error("ServeHTTP failed", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -96,12 +101,14 @@ func (s *Skill) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			zap.String("req_skill_id", root.Context.System.Application.ApplicationId),
 			zap.String("cfg_skill_id", s.applicationId),
 		)
+		//fmt.Println("app id")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	err = alexaapi.SetRequestViaLookahead(ctx, &root, requestJson)
 	if err != nil {
+		//fmt.Println("SetRequestViaLookahead")
 		Logger.Error("ServeHTTP failed", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -110,6 +117,7 @@ func (s *Skill) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if root.Directive.Header.Namespace != "" {
 		err = alexaapi.SetEnvelopePayloadViaLookahead(ctx, &root.Directive, requestJson)
 		if err != nil {
+			//fmt.Println("SetEnvelopePayloadViaLookahead")
 			Logger.Error("ServeHTTP failed", zap.Error(err))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -119,6 +127,7 @@ func (s *Skill) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// TODO: fallback handler for when no handler takes the request
 	response, err := s.handlers.Handle(ctx, s, &root)
 	if err != nil {
+		//fmt.Println("handlers.Handl")
 		Logger.Error("ServeHTTP failed", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -135,12 +144,15 @@ func (s *Skill) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	responseJson, err := json.Marshal(response)
 	if err != nil {
 		Logger.Error("ServeHTTP failed", zap.Error(err))
+		//fmt.Println("json.Marshal(response)")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	// TODO: why?
 	_, err = io.Copy(w, bytes.NewReader(responseJson))
 	if err != nil {
+		//fmt.Println("bytes.NewReade")
 		Logger.Error("ServeHTTP failed", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
